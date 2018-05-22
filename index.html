@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>JPEGCam Test Page</title>
+	<meta name="generator" content="TextMate http://macromates.com/">
+	<meta name="author" content="Joseph Huckaby">
+	<!-- Date: 2008-03-15 -->
+</head>
+<body>
+	<table border><tr><td valign=top width=1>
+	<h1>Sistema de aquisição<br> de imagens de voluntários e detecção de faces</h1>
+
+	
+	<script type="text/javascript" src="webcam.js"></script>
+	
+		<script language="JavaScript">
+
+//Trecho inserido por wellton para enviar a imagem tirada via ajax para o para o processaImagem.php
+function chamadaAjax(imagem){
+
+    new funcao_ajax();
+    ajax.open("GET", "processaImagem.php?imagem="+imagem, true);
+   new carregando(2, imagem);
+    ajax.send(null);
+}
+
+function funcao_ajax(){
+    if(window.XMLHttpRequest){
+        ajax = new XMLHttpRequest();
+    }else if(window.ActiveXObject){
+        ajax = new ActiveXObject("Microsoft.XMLHTTP");
+    }else{
+        ajax = new ActiveXObject("Msxml2.XMLHTTP");
+    }
+    return ajax;
+}
+
+function carregando(num, imagem){
+
+    ajax.onreadystatechange = function (){        
+    
+    document.getElementById("carregar"+num).innerHTML = "detectando faces, aguarde...";
+    
+        if ( ajax.readyState == 4) { // Completo
+            if ( ajax.status == 200) { // resposta do servidor OK		
+                document.getElementById("carregar"+num).innerHTML = ajax.responseText;
+if(num==1) chamadaAjax(imagem);
+            } else {
+                alert( "Problema: " + ajax.statusText );
+            }
+
+        }
+
+
+    }
+}
+		webcam.set_api_url( 'test.php' );
+		webcam.set_quality( 100 ); // Qualidade JPEG (1 - 100)
+		webcam.set_shutter_sound( true ); // toca o som da foto
+	</script>
+	
+	<!-- Próximo, definir uma foto 320x240 -->
+	<script language="JavaScript">
+		document.write( webcam.get_html(320, 240) );
+	</script>
+	
+	<!-- Alguns botões para controle -->
+	<br/><form>
+
+
+		<input type=button value="configurar WebCam..." onClick="webcam.configure()">
+		&nbsp;&nbsp;
+		<input type=button value="Tirar foto" onClick="take_snapshot()">
+	</form>
+	
+	<!-- código para ser executado e enviar para test.php -->
+	<script language="JavaScript">
+		webcam.set_hook( 'onComplete', 'my_completion_handler' );
+		
+
+		function take_snapshot() {
+			// tira a foto e envia para o sevidor
+			document.getElementById('upload_results').innerHTML = '<h1>Enviando...</h1>';
+			webcam.snap();
+		}
+		
+		function my_completion_handler(msg) {
+			// Extrai a URL da saída do PHP
+
+			if (msg.match(/(http\:\/\/\S+)/)) {
+				var image_url = RegExp.$1;
+
+				//mostra a imagem JPEG na tela
+				document.getElementById('upload_results').innerHTML = 
+					'<h1>Envio para o servidor com sucesso!</h1>' + 
+					'<h3>Caminho da Imagem: ' + image_url + '</h3>' + 
+					'<img src="' + image_url + '">';
+				
+				// Reinicia a camera para tirar outra foto
+				webcam.reset();
+			}
+			else alert("PHP Error: " + msg);
+
+var partes=image_url.split("/");
+
+
+
+var imagem = partes[4];
+partes=imagem.split(".");
+imagem = partes[0];
+alert(imagem);
+			chamadaAjax(imagem);
+
+
+		}
+
+	</script>
+	
+	</td><td valign=top  width=1>
+		<div id="upload_results" style="background-color:#eee;"></div>
+	</td>
+<td valign=top>
+<div style="background-color:#aaa;" id='carregar2' ></div>
+</td>
+</tr>
+
+<tr>
+<td align="right" colspan="3">
+Configurado e modificado por @WelltonCosta
+</td>
+</tr>
+</table>
+</body>
+</html>
